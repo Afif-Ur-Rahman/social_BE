@@ -9,7 +9,7 @@ const app = express();
 
 // Connection to MongoDb
 const PORT = 5000;
-const db = "mongodb://localhost:27017";
+const db = "mongodb+srv://AfifUrRahman:afif2017@cluster0.ydcgvn1.mongodb.net/Social_App?retryWrites=true&w=majority";
 mongoose
   .connect(db)
   .then(() => {
@@ -31,17 +31,17 @@ const signupSchema = new mongoose.Schema({
   email: String,
   password: String,
 });
-const signupUser = mongoose.model("Registers", signupSchema);
+const signupUser = mongoose.model("registers", signupSchema);
 
-// User Schema
-const userSchema = new mongoose.Schema({
+// Post Schema
+const postSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   id: String,
-  name: String,
-  email: String,
-  password: String,
+  heading: String,
+  author: String,
+  content: String,
 });
-const user = mongoose.model("User_Data", userSchema);
+const user = mongoose.model("user_Post", postSchema);
 
 // Setting Cors
 const corsOptions = {
