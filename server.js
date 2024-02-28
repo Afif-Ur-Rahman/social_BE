@@ -37,7 +37,7 @@ const signupUser = mongoose.model("registers", signupSchema);
 const postSchema = new mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   id: String,
-  heading: String,
+  title: String,
   author: String,
   content: String,
 });
@@ -175,9 +175,9 @@ app.post(
     const newUser = new user({
       _id: req.body._id,
       id: req.body.id,
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
+      title: req.body.title,
+      author: req.body.author,
+      content: req.body.content,
     });
 
     newUser
@@ -198,19 +198,19 @@ app.get("/userdata", verifyToken, async (req, res) => {
   try {
     const page = parseInt(req.query.page);
     const id = req.header("User-Id");
-    const dataCount = parseInt(req.query.dataCount) || 5;
-    const skip = (page - 1) * dataCount;
+    const postCount = parseInt(req.query.postCount) || 5;
+    const skip = (page - 1) * postCount;
 
     const totalUsers = await user.countDocuments({id: id});
     const data = await user
       .find({id: id})
       .sort({ _id: -1 })
       .skip(skip)
-      .limit(dataCount)
+      .limit(postCount)
       .exec();
     res.json({
       users: data,
-      totalPages: Math.ceil(totalUsers / dataCount),
+      totalPages: Math.ceil(totalUsers / postCount),
       currentPage: page,
     });
   } catch (error) {
@@ -248,9 +248,9 @@ app.all("/update", async (req, res) => {
   try {
     const id = req.body.id;
     const updateUser = {
-      name: req.body.name,
-      email: req.body.email,
-      password: req.body.password,
+      title: req.body.title,
+      author: req.body.author,
+      content: req.body.content,
     };
     const data = await user.updateOne({ _id: id }, updateUser);
     res.json(data);
