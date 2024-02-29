@@ -104,7 +104,7 @@ app.post(
 
       await newSignupUser.save();
 
-      const token = jwt.sign({ userId: newSignupUser._id }, "afifurrahman");
+      const token = jwt.sign({ userId: newSignupUser._id }, "afifurrahman", {expiresIn: "1h"});
       res.status(201).json({
         success: true,
         message: "Data Successfully Saved to Database",
@@ -131,7 +131,7 @@ app.post(
     try {
       const user = await signupUser.findOne({ email: email });
       if (user) {
-        const token = jwt.sign({ userId: user._id }, "afifurrahman");
+        const token = jwt.sign({ userId: user._id }, "afifurrahman", {expiresIn: "1h"});
         bcrypt.compare(password, user.password, (err, response) => {
           if (err) {
             return res.status(500).json({
