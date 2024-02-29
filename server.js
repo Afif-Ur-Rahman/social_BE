@@ -9,7 +9,8 @@ const app = express();
 
 // Connection to MongoDb
 const PORT = 5000;
-const db = "mongodb+srv://AfifUrRahman:afif2017@cluster0.ydcgvn1.mongodb.net/Social_App?retryWrites=true&w=majority";
+const db =
+  "mongodb+srv://AfifUrRahman:afif2017@cluster0.ydcgvn1.mongodb.net/Social_App?retryWrites=true&w=majority";
 mongoose
   .connect(db)
   .then(() => {
@@ -41,7 +42,7 @@ const postSchema = new mongoose.Schema({
   author: String,
   content: String,
 });
-const user = mongoose.model("user_Post", postSchema);
+const post = mongoose.model("user_Post", postSchema);
 
 // Setting Cors
 const corsOptions = {
@@ -52,9 +53,9 @@ const corsOptions = {
 
 // Verify Token
 const verifyToken = (req, res, next) => {
-  const token = req.header("Authorization") || false;
+  const token = req.header("Authorization");
   if (!token) {
-    res.redirect("/signup")
+    res.redirect("/signup");
   }
   try {
     const decoded = jwt.verify(token, "afifurrahman");
@@ -85,9 +86,11 @@ app.post(
       }
 
       const { name, email, password } = req.body;
-      const existedUser = await signupUser.findOne({email})
+      const existedUser = await signupUser.findOne({ email });
       if (existedUser) {
-        return res.status(400).json({message: "Email Already Registered", success: false})
+        return res
+          .status(400)
+          .json({ message: "Email Already Registered", success: false });
       }
 
       const hashedPass = await bcrypt.hash(password, 10);
@@ -106,7 +109,7 @@ app.post(
         success: true,
         message: "Data Successfully Saved to Database",
         token,
-        id: newSignupUser._id
+        id: newSignupUser._id,
       });
     } catch (error) {
       console.error(error.message);
@@ -169,47 +172,45 @@ app.post(
 );
 
 // Create/Submit Request
-app.post(
-  "/submit",
-  (req, res) => {
-    const newUser = new user({
-      _id: req.body._id,
-      id: req.body.id,
-      title: req.body.title,
-      author: req.body.author,
-      content: req.body.content,
-    });
+app.post("/submit", (req, res) => {
+  const newUser = new post({
+    _id: req.body._id,
+    id: req.body.id,
+    title: req.body.title,
+    author: req.body.author,
+    content: req.body.content,
+  });
 
-    newUser
-      .save()
-      .then(() => {
-        res.status(200).send(chalk.green("Data successfuly saved to Database"));
-      })
-      .catch((err) => {
-        res
-          .status(500)
-          .send(chalk.red(`Error saving to database: ${err.message}`));
-      });
-  }
-);
+  newUser
+    .save()
+    .then(() => {
+      res.status(200).send(chalk.green("Data successfuly saved to Database"));
+    })
+    .catch((err) => {
+      res
+        .status(500)
+        .send(chalk.red(`Error saving to database: ${err.message}`));
+    });
+});
 
 // Get/Read Request
 app.get("/userdata", verifyToken, async (req, res) => {
   try {
     const page = parseInt(req.query.page);
-    const id = req.header("User-Id");
+    const id = req.user.userId;
     const postCount = parseInt(req.query.postCount) || 5;
     const skip = (page - 1) * postCount;
-
-    const totalUsers = await user.countDocuments({id: id});
-    const data = await user
-      .find({id: id})
+    const user = await signupUser.findOne({_id: id});
+    const totalUsers = await post.countDocuments({ id: id });
+    const data = await post
+      .find({ id: id })
       .sort({ _id: -1 })
       .skip(skip)
       .limit(postCount)
       .exec();
     res.json({
-      users: data,
+      user: user,
+      posts: data,
       totalPages: Math.ceil(totalUsers / postCount),
       currentPage: page,
     });
@@ -222,8 +223,8 @@ app.get("/userdata", verifyToken, async (req, res) => {
 // Delete All Request
 app.delete("/deleteAll", async (req, res) => {
   try {
-    const id = req.body.id
-    const data = await user.deleteMany({id: id});
+    const id = req.body.id;
+    const data = await post.deleteMany({ id: id });
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -235,7 +236,7 @@ app.delete("/deleteAll", async (req, res) => {
 app.post("/deleteOne", async (req, res) => {
   try {
     const id = req.body.id;
-    const data = await user.deleteOne({ _id: id });
+    const data = await post.deleteOne({ _id: id });
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -247,12 +248,12 @@ app.post("/deleteOne", async (req, res) => {
 app.all("/update", async (req, res) => {
   try {
     const id = req.body.id;
-    const updateUser = {
+    const updatePost = {
       title: req.body.title,
       author: req.body.author,
       content: req.body.content,
     };
-    const data = await user.updateOne({ _id: id }, updateUser);
+    const data = await post.updateOne({ _id: id }, updatePost);
     res.json(data);
   } catch (error) {
     console.error(error);
