@@ -220,6 +220,33 @@ app.get("/userdata", verifyToken, async (req, res) => {
   }
 });
 
+// Get/Read All posts Request
+app.get("/newsfeed", verifyToken, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page);
+    const id = req.user.userId;
+    const postCount = parseInt(req.query.postCount) || 5;
+    const skip = (page - 1) * postCount;
+    const user = await signupUser.findOne({_id: id});
+    const totalUsers = await post.countDocuments({});
+    const data = await post
+      .find({})
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(postCount)
+      .exec();
+    res.json({
+      user: user,
+      posts: data,
+      totalPages: Math.ceil(totalUsers / postCount),
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send(chalk.red("Internal Server Error"));
+  }
+});
+
 // Delete All Request
 app.delete("/deleteAll", async (req, res) => {
   try {
