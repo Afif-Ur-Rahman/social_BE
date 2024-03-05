@@ -38,16 +38,20 @@ const corsOptions = {
 const verifyToken = (req, res, next) => {
   const token = req.header("Authorization");
   if (!token) {
-    res.redirect("/signup");
+    return res.redirect("/login");
   }
   try {
     const decoded = jwt.verify(token, "afifurrahman");
     req.user = decoded;
     next();
   } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.redirect("/login");
+    }
     console.error(error);
-  }
+    return res.status(401).json({success: false, message: "Invalid Token"})
 };
+}
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -194,11 +198,11 @@ app.all("/update", async (req, res) => {
 app.post("/like/:postId", verifyToken, async(req, res) => {
   try {
     const postId = req.params.postId;
-    const userId = req.user.userId;
-    const post = await post.findOne({_id: postId});
-    const likedByUser = post.likes.includes(userId);
-    likedByUser? post.likes = post.likes.filter((id) => id !== userId) : post.likes.push(userId);
-    await post.save().res.status(200).send("Post liked/unliked successfully");
+    const updateLikes = {
+      likes: req.body,
+    }
+    const data = await post.updateOne({_id: postId}, updateLikes);
+    res.json(data)
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");

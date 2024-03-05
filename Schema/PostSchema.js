@@ -11,8 +11,8 @@ const postSchema = new mongoose.Schema({
       type: Date,
       default: Date.now
     },
-    likes: Number,
-    comments: Object,
+    likes: Array,
+    comments: Array,
   });
   const post = mongoose.model("user_Post", postSchema);
 
