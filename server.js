@@ -202,9 +202,25 @@ app.post("/like/:postId", verifyToken, async(req, res) => {
       likes: req.body,
     }
     const data = await post.updateOne({_id: postId}, updateLikes);
-    res.json(data)
+    res.json(data);
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
+  }
+});
+
+// Comment Request
+app.post("/comment/:postId", verifyToken, async(req, res) => {
+  try {
+    const postId = req.params.postId;
+    const comments = {
+      comments: req.body,
+    };
+
+    const data = await post.updateOne({_id: postId}, comments);
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error")
   }
 });
