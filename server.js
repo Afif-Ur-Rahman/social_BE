@@ -46,7 +46,7 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      res.setHeader("Clear-Site-Data", "'cache', 'cookies', 'storage'");
+      res.setHeader("Clear-Site-Data", 'cache', 'cookies', 'storage');
       return res.redirect("/login");
     }
     console.error(error);
@@ -81,7 +81,6 @@ app.post("/submit", (req, res) => {
   const newPost = new post({
     _id: req.body._id,
     userId: req.body.id,
-    title: req.body.title,
     author: req.body.author,
     content: req.body.content,
     likes: req.body.likes,
@@ -183,8 +182,6 @@ app.all("/update", async (req, res) => {
   try {
     const id = req.body.id;
     const updatePost = {
-      title: req.body.title,
-      author: req.body.author,
       content: req.body.content,
     };
     const data = await post.updateOne({ _id: id }, updatePost);
