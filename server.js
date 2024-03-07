@@ -46,6 +46,7 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
+      res.setHeader("Clear-Site-Data", "'cache', 'cookies', 'storage'");
       return res.redirect("/login");
     }
     console.error(error);
@@ -122,7 +123,7 @@ app.get("/userdata", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send(chalk.red("Internal Server Error"));
+    res.status(500).send(chalk.red("Internal Server Error", error));
   }
 });
 
@@ -149,7 +150,7 @@ app.get("/newsfeed", verifyToken, async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send(chalk.red("Internal Server Error"));
+    res.status(500).send(chalk.red("Internal Server Error", error));
   }
 });
 
@@ -161,7 +162,7 @@ app.delete("/deleteAll", async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error(error);
-    res.status(500).send(chalk.red("Internal Server Error"));
+    res.status(500).send(chalk.red("Internal Server Error", error));
   }
 });
 
@@ -173,7 +174,7 @@ app.post("/deleteOne", async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error(error);
-    res.status(500).send(chalk.red("Internal Server Error"));
+    res.status(500).send(chalk.red("Internal Server Error", error));
   }
 });
 
@@ -190,7 +191,7 @@ app.all("/update", async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error(error);
-    res.status(500).send(chalk.red("Internal Server Errors"));
+    res.status(500).send(chalk.red("Internal Server Errors", error));
   }
 });
 
@@ -205,7 +206,7 @@ app.post("/like/:postId", verifyToken, async(req, res) => {
     res.json(data);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error");
+    res.status(500).send("Internal Server Error", error);
   }
 });
 
@@ -221,6 +222,22 @@ app.post("/comment/:postId", verifyToken, async(req, res) => {
     res.json(data);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error")
+    res.status(500).send("Internal Server Error", error)
+  }
+});
+
+// Comment Delete Request
+app.post("/deletecomment/:postId", verifyToken, async(req, res) => {
+  try {
+    const postId = req.params.postId;
+    const comments = {
+      comments: req.body,
+    };
+
+    const data = await post.updateOne({_id: postId}, comments);
+    res.json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error", error)
   }
 });
