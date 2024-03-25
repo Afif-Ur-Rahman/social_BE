@@ -25,8 +25,6 @@ const postSchema = new mongoose.Schema({
       return `${hours}:${minutes}`;
     },
   },
-  likes: Array,
-  comments: Array,
 });
 const post = mongoose.model("user_Post", postSchema);
 
