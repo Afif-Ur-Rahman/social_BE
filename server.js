@@ -144,12 +144,7 @@ app.get("/newsfeed", verifyToken, async (req, res) => {
     const postCount = parseInt(req.query.postCount) || 5;
     const skip = (page - 1) * postCount;
     const user = await signupUser.findOne({ _id: id });
-    const likecomment = await likeComment
-      .find({})
-      .sort({ _id: -1 })
-      .skip(skip)
-      .limit(postCount)
-      .exec();
+    const likecomment = await likeComment.find({});
     const totalUsers = await post.countDocuments({});
     const posts = await post
       .find({})
