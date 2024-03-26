@@ -213,11 +213,10 @@ app.all("/update", async (req, res) => {
 app.post("/like/:postId", verifyToken, async (req, res) => {
   try {
     const postId = req.params.postId;
-    console.log(req.body);
     const updateLikes = {
       likes: req.body,
     };
-    const data = await likeComment.updateOne({ postId: postId }, updateLikes);
+    const data = await likeComment.updateOne({ _id: postId }, updateLikes);
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -232,7 +231,7 @@ app.post("/comment/:postId", verifyToken, async (req, res) => {
     const comments = {
       comments: req.body,
     };
-    const data = await likeComment.updateOne({ postId: postId }, comments);
+    const data = await likeComment.updateOne({ _id: postId }, comments);
     res.json(data);
   } catch (error) {
     console.error(error);
@@ -248,7 +247,7 @@ app.post("/deletecomment/:postId", verifyToken, async (req, res) => {
       comments: req.body,
     };
 
-    const data = await likeComment.updateOne({ postId: postId }, comments);
+    const data = await likeComment.updateOne({ _id: postId }, comments);
     res.json(data);
   } catch (error) {
     console.error(error);
