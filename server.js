@@ -117,6 +117,12 @@ app.get("/userdata", verifyToken, async (req, res) => {
     const postCount = parseInt(req.query.postCount) || 5;
     const skip = (page - 1) * postCount;
     const user = await signupUser.findOne({ _id: userId });
+    const likecomment = await likeComment
+      .find({})
+      .sort({ _id: -1 })
+      .skip(skip)
+      .limit(postCount)
+      .exec();
     const totalUsers = await post.countDocuments({ userId: userId });
     const data = await post
       .find({ userId: userId })
@@ -127,6 +133,7 @@ app.get("/userdata", verifyToken, async (req, res) => {
     res.json({
       user: user,
       posts: data,
+      likeComment: likecomment,
       totalPages: Math.ceil(totalUsers / postCount),
       currentPage: page,
     });
