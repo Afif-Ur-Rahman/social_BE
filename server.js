@@ -137,6 +137,7 @@ app.get("/userdata", verifyToken, async (req, res) => {
       totalPages: Math.ceil(totalUsers / postCount),
       currentPage: page,
     });
+    console.log(likecomment);
   } catch (error) {
     console.error(error);
     res.status(500).send(chalk.red("Internal Server Error", error));
@@ -171,6 +172,7 @@ app.get("/newsfeed", verifyToken, async (req, res) => {
       totalPages: Math.ceil(totalUsers / postCount),
       currentPage: page,
     });
+    console.log(likecomment);
   } catch (error) {
     console.error(error);
     res.status(500).send(chalk.red("Internal Server Error", error));
@@ -235,14 +237,16 @@ app.post("/like/:postId", verifyToken, async (req, res) => {
 app.post("/comment/:postId", verifyToken, async (req, res) => {
   try {
     const postId = req.params.postId;
-    const comments = {
-      comments: req.body,
-    };
-    const data = await likeComment.updateOne({ _id: postId }, comments);
+    const newComment = { comment: req.body };
+    const data = await likeComment.findOneAndUpdate(
+      { _id: postId },
+      { $push: { comments: newComment.comment } },
+      { new: true }
+    );
     res.json(data);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Internal Server Error", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
